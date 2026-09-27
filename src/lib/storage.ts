@@ -6,6 +6,8 @@ const STORAGE_KEY = 'rubik-timer:data';
 const ACTIVE_SCRAMBLE_KEY = 'rubik-timer:active-scramble';
 const LIST_OPEN_KEY = 'rubik-timer:list-open';
 const LANG_KEY = 'rubik-timer:lang';
+const FAVORITE_ALGS_KEY = 'rubik-timer:favorite-algorithms';
+const FAVORITES_ONLY_KEY = 'rubik-timer:favorite-algorithms-only';
 
 export const EXPORT_FORMAT = 'rubik-timer';
 export const EXPORT_VERSION = 1;
@@ -126,6 +128,29 @@ export function loadLang(): Lang | null {
 
 export function saveLang(lang: Lang): void {
   localStorage.setItem(LANG_KEY, lang);
+}
+
+/** Ids of the cheatsheet algorithms marked as favorite. */
+export function loadFavoriteAlgorithms(): string[] {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(FAVORITE_ALGS_KEY) ?? '[]');
+    return Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveFavoriteAlgorithms(ids: readonly string[]): void {
+  localStorage.setItem(FAVORITE_ALGS_KEY, JSON.stringify(ids));
+}
+
+/** Whether the cheatsheet shows only favorite algorithms. */
+export function loadFavoritesOnly(): boolean {
+  return localStorage.getItem(FAVORITES_ONLY_KEY) === 'true';
+}
+
+export function saveFavoritesOnly(only: boolean): void {
+  localStorage.setItem(FAVORITES_ONLY_KEY, String(only));
 }
 
 export function serializeExport(data: AppData): string {
