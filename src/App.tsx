@@ -66,7 +66,7 @@ export function App() {
     });
   });
 
-  // A running solve turns the page green and keeps the screen from sleeping.
+  // A running solve turns the timer area green and keeps the screen from sleeping.
   const running = timer.phase === 'running';
   useWakeLock(running);
 
@@ -111,18 +111,14 @@ export function App() {
   }, [dispatch, setListOpen, wide]);
 
   return (
-    <div
-      className={`flex h-dvh text-neutral-100 transition-colors duration-150 ${
-        running ? 'bg-green-800' : 'bg-neutral-950'
-      }`}
-    >
+    <div className="flex h-dvh bg-neutral-950 text-neutral-100">
       {!wide && drawerOpen && (
         <div className="fixed inset-0 z-30 bg-black/60" onClick={closeDrawer} aria-hidden="true" />
       )}
       <aside
         aria-label={t.toolbar.scrambles}
         inert={!listOpen}
-        className={`fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] border-r border-neutral-800 bg-neutral-950 transition-transform duration-200 md:static md:bg-transparent md:z-auto md:max-w-none md:shrink-0 md:translate-none md:transition-none ${
+        className={`fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] border-r border-neutral-800 bg-neutral-950 transition-transform duration-200 md:static md:z-auto md:max-w-none md:shrink-0 md:translate-none md:transition-none ${
           drawerOpen ? 'translate-x-0' : '-translate-x-full'
         } ${sidebarOpen ? '' : 'md:hidden'}`}
       >
@@ -175,7 +171,9 @@ export function App() {
             {lang === 'cs' ? 'EN' : 'CZ'}
           </button>
         </header>
-        <main className="min-h-0 flex-1 overflow-y-auto">
+        <main
+          className={`min-h-0 flex-1 overflow-y-auto transition-colors duration-150 ${running ? 'bg-green-800' : ''}`}
+        >
           <ScramblePanel timer={timer} />
         </main>
       </div>
