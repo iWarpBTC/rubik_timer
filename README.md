@@ -26,6 +26,9 @@ npm run build    # typecheck + production build
 | ? | Open the cheatsheet |
 | Esc | Cancel dialog / close cheatsheet |
 
+While a solve is running the page turns green and the screen is kept on
+(Screen Wake Lock API; needs HTTPS or localhost, otherwise it is skipped).
+
 The layout works on phones: the scramble list becomes a drawer (the
 "Scrambles" button), and on wide screens it can be collapsed with the same
 button in the top bar.

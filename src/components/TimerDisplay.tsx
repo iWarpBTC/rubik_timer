@@ -32,7 +32,7 @@ export function TimerDisplay({
       <div className={`font-mono text-6xl font-bold tabular-nums sm:text-7xl ${PHASE_COLOR[phase]}`}>
         {formatMs(displayMs)}
       </div>
-      <p className="mt-2 text-center text-xs text-neutral-500">{t.timerHint(phase, touch)}</p>
+      <p className={`mt-2 text-center text-xs ${phase === 'running' ? 'text-green-100/80' : 'text-neutral-500'}`}>{t.timerHint(phase, touch)}</p>
     </div>
   );
 }
