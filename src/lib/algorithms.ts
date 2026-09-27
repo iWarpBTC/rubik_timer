@@ -62,6 +62,39 @@ export const ALGORITHM_GROUPS: readonly AlgorithmGroup[] = [
   },
 ];
 
+export interface Trigger {
+  id: string;
+  name: string;
+  alg: string;
+  description: string;
+}
+
+/**
+ * Short move sequences that algorithms are built from. They are not
+ * last-layer algorithms on their own: done once they disturb the first two
+ * layers; done six times in a row they return the cube to where it started.
+ */
+export const TRIGGERS: readonly Trigger[] = [
+  {
+    id: 'sexy',
+    name: 'Sexy move',
+    alg: "R U R' U'",
+    description: 'The most common trigger; the core of the Line OLL and the start of the T-perm.',
+  },
+  {
+    id: 'reverse-sexy',
+    name: 'Reverse sexy move',
+    alg: "U R U' R'",
+    description: 'The sexy move in reverse order; the core of the L-shape OLL.',
+  },
+  {
+    id: 'sledgehammer',
+    name: 'Sledgehammer',
+    alg: "R' F R F'",
+    description: "Common in F2L; the T (Chameleon) OLL ends with it, using a wide r' first.",
+  },
+];
+
 export const ALGORITHMS: readonly Algorithm[] = [
   // OLL, edges
   {

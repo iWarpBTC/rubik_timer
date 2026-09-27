@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ALGORITHM_GROUPS, ALGORITHMS, type Algorithm } from '../lib/algorithms';
+import { ALGORITHM_GROUPS, ALGORITHMS, TRIGGERS, type Algorithm } from '../lib/algorithms';
 import { NOTATION, type NotationMove } from '../lib/notation';
 import { LastLayerDiagram } from './LastLayerDiagram';
 import { MoveDiagram } from './MoveDiagram';
@@ -100,6 +100,22 @@ function AlgorithmsTab() {
         cube like the picture, then do the algorithm; arrows show where pieces go. A move in parentheses at the end
         is the final turn of the top layer.
       </p>
+      <section>
+        <h3 className="text-xs uppercase tracking-wide text-neutral-500">Triggers</h3>
+        <p className="mb-2 text-xs text-neutral-600">
+          Short sequences the algorithms below are built from. Done six times in a row, each returns the cube to where
+          it started.
+        </p>
+        <ul className="grid gap-2 md:grid-cols-3">
+          {TRIGGERS.map((trigger) => (
+            <li key={trigger.id} className="rounded-lg border border-neutral-800 bg-neutral-900 p-3">
+              <div className="font-medium text-neutral-100">{trigger.name}</div>
+              <p className="mt-1 font-mono text-sm text-neutral-100">{trigger.alg}</p>
+              <p className="mt-1 text-xs text-neutral-400">{trigger.description}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
       {ALGORITHM_GROUPS.map((group) => (
         <section key={group.id}>
           <h3 className="text-xs uppercase tracking-wide text-neutral-500">{group.title}</h3>

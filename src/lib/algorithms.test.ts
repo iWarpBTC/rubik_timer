@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Face } from './cube';
-import { ALGORITHM_GROUPS, ALGORITHMS, type Algorithm } from './algorithms';
+import { ALGORITHM_GROUPS, ALGORITHMS, TRIGGERS, type Algorithm } from './algorithms';
+import { applyAlgorithm, solvedCube } from './cube';
 import { isLastLayerAlgorithm, lastLayerCase } from './lastLayer';
 
 const POSITION_NAMES: Record<number, string> = { 0: 'BL', 1: 'B', 2: 'BR', 3: 'L', 5: 'R', 6: 'FL', 7: 'F', 8: 'FR' };
@@ -140,5 +141,19 @@ describe('originally supplied algorithms', () => {
     // Every piece moves, i.e. the top layer still needs a half turn at the end.
     expect(original).toHaveLength(8);
     expect(lastLayerCase(byId('pll-z').alg).moves).toHaveLength(4);
+  });
+});
+
+describe('triggers', () => {
+  it.each(TRIGGERS.map((t) => [t.name, t.alg]))('%s six times returns to solved', (_, alg) => {
+    expect(applyAlgorithm(alg)).not.toEqual(solvedCube());
+    expect(applyAlgorithm(Array(6).fill(alg).join(' '))).toEqual(solvedCube());
+  });
+
+  it('appear inside the algorithms they are described in', () => {
+    expect(byId('oll-line').alg).toContain("R U R' U'");
+    expect(byId('pll-t').alg.startsWith("R U R' U'")).toBe(true);
+    expect(byId('oll-l-shape').alg).toContain("U R U' R'");
+    expect(byId('oll-t').alg.endsWith("r' F R F'")).toBe(true);
   });
 });
