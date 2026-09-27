@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ALGORITHM_GROUPS, ALGORITHMS, TRIGGERS, type Algorithm } from '../lib/algorithms';
 import { useLanguage } from '../i18n/LanguageContext';
 import { NOTATION, type NotationMove } from '../lib/notation';
+import { loadFavoriteAlgorithms, loadFavoritesOnly, saveFavoriteAlgorithms, saveFavoritesOnly } from '../lib/storage';
 import { LastLayerDiagram } from './LastLayerDiagram';
 import { MoveDiagram } from './MoveDiagram';
 
@@ -71,17 +72,39 @@ function MovesTab() {
   );
 }
 
-function AlgorithmCard({ algorithm, kind }: { algorithm: Algorithm; kind: 'OLL' | 'PLL' }) {
+function AlgorithmCard({
+  algorithm,
+  kind,
+  favorite,
+  onToggleFavorite,
+}: {
+  algorithm: Algorithm;
+  kind: 'OLL' | 'PLL';
+  favorite: boolean;
+  onToggleFavorite: () => void;
+}) {
   const { t, l, lang } = useLanguage();
   return (
-    <li className="flex gap-3 rounded-lg border border-neutral-800 bg-neutral-900 p-3">
+    <li className="relative flex gap-3 rounded-lg border border-neutral-800 bg-neutral-900 p-3">
+      <button
+        type="button"
+        onClick={onToggleFavorite}
+        aria-pressed={favorite}
+        aria-label={favorite ? t.cheatsheet.removeFavorite : t.cheatsheet.markFavorite}
+        title={favorite ? t.cheatsheet.removeFavorite : t.cheatsheet.markFavorite}
+        className={`absolute top-1.5 right-1.5 rounded-md px-2 py-1 text-lg leading-none ${
+          favorite ? 'text-yellow-400' : 'text-neutral-600 hover:text-neutral-300'
+        }`}
+      >
+        {favorite ? '★' : '☆'}
+      </button>
       <LastLayerDiagram
         alg={algorithm.alg}
         kind={kind}
         label={t.cheatsheet.caseLabel}
         className="h-20 w-20 shrink-0"
       />
-      <div className="min-w-0">
+      <div className="min-w-0 pr-6">
         <div className="flex flex-wrap items-baseline gap-x-2">
           <span className="font-medium text-neutral-100">{l(algorithm.name)}</span>
           {algorithm.short !== undefined && (
@@ -104,33 +127,85 @@ function AlgorithmCard({ algorithm, kind }: { algorithm: Algorithm; kind: 'OLL' 
 
 function AlgorithmsTab() {
   const { t, l } = useLanguage();
+  const [favorites, setFavorites] = useState<ReadonlySet<string>>(() => new Set(loadFavoriteAlgorithms()));
+  const [favoritesOnly, setFavoritesOnly] = useState(loadFavoritesOnly);
+
+  useEffect(() => saveFavoriteAlgorithms([...favorites]), [favorites]);
+  useEffect(() => saveFavoritesOnly(favoritesOnly), [favoritesOnly]);
+
+  const toggleFavorite = (id: string) =>
+    setFavorites((current) => {
+      const next = new Set(current);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
+
+  const favoriteAlgorithms = ALGORITHMS.filter((a) => favorites.has(a.id));
+  const shown = favoritesOnly ? favoriteAlgorithms : ALGORITHMS;
+  const filters = [
+    { only: false, label: t.cheatsheet.showAll },
+    { only: true, label: `${t.cheatsheet.showFavorites} (${favoriteAlgorithms.length})` },
+  ];
+
   return (
     <div className="space-y-6">
       <p className="text-sm text-neutral-400">{t.cheatsheet.algorithmsIntro}</p>
-      <section>
-        <h3 className="text-xs uppercase tracking-wide text-neutral-500">{t.cheatsheet.triggers}</h3>
-        <p className="mb-2 text-xs text-neutral-600">{t.cheatsheet.triggersNote}</p>
-        <ul className="grid gap-2 md:grid-cols-3">
-          {TRIGGERS.map((trigger) => (
-            <li key={trigger.id} className="rounded-lg border border-neutral-800 bg-neutral-900 p-3">
-              <div className="font-medium text-neutral-100">{l(trigger.name)}</div>
-              <p className="mt-1 font-mono text-sm text-neutral-100">{trigger.alg}</p>
-              <p className="mt-1 text-xs text-neutral-400">{l(trigger.description)}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-      {ALGORITHM_GROUPS.map((group) => (
-        <section key={group.id}>
-          <h3 className="text-xs uppercase tracking-wide text-neutral-500">{l(group.title)}</h3>
-          <p className="mb-2 text-xs text-neutral-600">{l(group.note)}</p>
-          <ul className="grid gap-2 md:grid-cols-2">
-            {ALGORITHMS.filter((a) => a.group === group.id).map((algorithm) => (
-              <AlgorithmCard key={algorithm.id} algorithm={algorithm} kind={group.set} />
+      <div
+        role="group"
+        aria-label={t.cheatsheet.filterLabel}
+        className="inline-flex rounded-md border border-neutral-800 p-0.5"
+      >
+        {filters.map(({ only, label }) => (
+          <button
+            key={String(only)}
+            type="button"
+            aria-pressed={favoritesOnly === only}
+            onClick={() => setFavoritesOnly(only)}
+            className={`rounded px-3 py-1 text-sm ${
+              favoritesOnly === only ? 'bg-neutral-800 text-neutral-100' : 'text-neutral-400 hover:text-neutral-200'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {favoritesOnly && shown.length === 0 && <p className="text-sm text-neutral-500">{t.cheatsheet.noFavorites}</p>}
+      {!favoritesOnly && (
+        <section>
+          <h3 className="text-xs uppercase tracking-wide text-neutral-500">{t.cheatsheet.triggers}</h3>
+          <p className="mb-2 text-xs text-neutral-600">{t.cheatsheet.triggersNote}</p>
+          <ul className="grid gap-2 md:grid-cols-3">
+            {TRIGGERS.map((trigger) => (
+              <li key={trigger.id} className="rounded-lg border border-neutral-800 bg-neutral-900 p-3">
+                <div className="font-medium text-neutral-100">{l(trigger.name)}</div>
+                <p className="mt-1 font-mono text-sm text-neutral-100">{trigger.alg}</p>
+                <p className="mt-1 text-xs text-neutral-400">{l(trigger.description)}</p>
+              </li>
             ))}
           </ul>
         </section>
-      ))}
+      )}
+      {ALGORITHM_GROUPS.map((group) => {
+        const algorithms = shown.filter((a) => a.group === group.id);
+        if (algorithms.length === 0) return null;
+        return (
+          <section key={group.id}>
+            <h3 className="text-xs uppercase tracking-wide text-neutral-500">{l(group.title)}</h3>
+            <p className="mb-2 text-xs text-neutral-600">{l(group.note)}</p>
+            <ul className="grid gap-2 md:grid-cols-2">
+              {algorithms.map((algorithm) => (
+                <AlgorithmCard
+                  key={algorithm.id}
+                  algorithm={algorithm}
+                  kind={group.set}
+                  favorite={favorites.has(algorithm.id)}
+                  onToggleFavorite={() => toggleFavorite(algorithm.id)}
+                />
+              ))}
+            </ul>
+          </section>
+        );
+      })}
     </div>
   );
 }

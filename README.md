@@ -46,7 +46,8 @@ The "Cheatsheet" button (or `?`) opens a reference with two tabs:
 - **Moves** — face turns, slice moves (M E S), wide moves and cube rotations,
   each drawn for the plain, prime (') and half (2) turn.
 - **Algorithms** — 2-look OLL and all 21 PLLs, with a picture of the case
-  each one solves. The pictures are computed from the algorithms by the cube
+  each one solves. Star (☆) the ones you are learning and switch to
+  "Favorites" to see only those; both are remembered in this browser. The pictures are computed from the algorithms by the cube
   simulation, and `src/lib/algorithms.test.ts` checks every algorithm keeps
   the first two layers intact and solves the case its name and description
   claim.

@@ -125,6 +125,12 @@ const en = {
     triggersNote:
       'Short sequences the algorithms below are built from. Done six times in a row, each returns the cube to where it started.',
     caseLabel: 'Top layer of the case',
+    filterLabel: 'Which algorithms to show',
+    showAll: 'All',
+    showFavorites: 'Favorites',
+    markFavorite: 'Mark as favorite',
+    removeFavorite: 'Remove from favorites',
+    noFavorites: 'No favorites yet. Tap the ☆ on an algorithm to add it here.',
   },
 };
 
@@ -252,6 +258,12 @@ const cs: Messages = {
     triggersNote:
       'Krátké sekvence, ze kterých jsou algoritmy níže složené. Když kterýkoli zopakuješ šestkrát za sebou, kostka se vrátí do původního stavu.',
     caseLabel: 'Horní vrstva případu',
+    filterLabel: 'Které algoritmy zobrazit',
+    showAll: 'Všechny',
+    showFavorites: 'Oblíbené',
+    markFavorite: 'Označit jako oblíbený',
+    removeFavorite: 'Odebrat z oblíbených',
+    noFavorites: 'Zatím žádné oblíbené. Klepni na ☆ u algoritmu a přidáš ho sem.',
   },
 };
 
