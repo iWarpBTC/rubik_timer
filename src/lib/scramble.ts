@@ -1,4 +1,6 @@
+import type { Scramble } from '../types';
 import type { Face } from './cube';
+import { newId } from './id';
 
 const SCRAMBLE_LENGTH = 20;
 
@@ -30,4 +32,9 @@ export function generateScramble(): string {
   }
 
   return moves.join(' ');
+}
+
+/** A new, not yet practiced scramble entity with a freshly generated sequence. */
+export function createScramble(): Scramble {
+  return { id: newId(), scramble: generateScramble(), createdAt: Date.now(), favorite: false };
 }

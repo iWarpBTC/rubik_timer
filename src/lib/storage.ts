@@ -3,6 +3,7 @@ import { isValidScramble } from './cube';
 
 const STORAGE_KEY = 'rubik-timer:data';
 const ACTIVE_SCRAMBLE_KEY = 'rubik-timer:active-scramble';
+const LIST_OPEN_KEY = 'rubik-timer:list-open';
 
 export const EXPORT_FORMAT = 'rubik-timer';
 export const EXPORT_VERSION = 1;
@@ -94,6 +95,15 @@ export function loadActiveScrambleId(): string | null {
 export function saveActiveScrambleId(id: string | null): void {
   if (id === null) localStorage.removeItem(ACTIVE_SCRAMBLE_KEY);
   else localStorage.setItem(ACTIVE_SCRAMBLE_KEY, id);
+}
+
+/** Whether the scramble list is shown on wide screens; defaults to shown. */
+export function loadListOpen(): boolean {
+  return localStorage.getItem(LIST_OPEN_KEY) !== 'false';
+}
+
+export function saveListOpen(open: boolean): void {
+  localStorage.setItem(LIST_OPEN_KEY, String(open));
 }
 
 export function serializeExport(data: AppData): string {
