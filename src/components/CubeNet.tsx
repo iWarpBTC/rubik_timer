@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 import { applyScramble, type CubeState, type Face } from '../lib/cube';
 
 const STICKER_COLORS: Record<Face, string> = {
@@ -24,6 +25,7 @@ const CELL = 20;
 const FACE_ORDER: readonly Face[] = ['U', 'R', 'F', 'D', 'L', 'B'];
 
 export function CubeNet({ scramble }: { scramble: string }) {
+  const { t } = useLanguage();
   const state: CubeState = useMemo(() => applyScramble(scramble), [scramble]);
 
   return (
@@ -31,7 +33,7 @@ export function CubeNet({ scramble }: { scramble: string }) {
       viewBox={`0 0 ${12 * CELL} ${9 * CELL}`}
       className="h-auto w-full max-w-sm"
       role="img"
-      aria-label="Scrambled cube net"
+      aria-label={t.panel.netLabel}
     >
       {FACE_ORDER.map((face, faceIndex) => {
         const [col, row] = FACE_ORIGIN[face];

@@ -1,13 +1,16 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { LanguageProvider } from './i18n/LanguageContext';
 import { StoreProvider } from './store/StoreContext';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <StoreProvider>
-      <App />
-    </StoreProvider>
+    <LanguageProvider>
+      <StoreProvider>
+        <App />
+      </StoreProvider>
+    </LanguageProvider>
   </StrictMode>,
 );

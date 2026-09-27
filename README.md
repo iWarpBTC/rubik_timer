@@ -30,6 +30,15 @@ The layout works on phones: the scramble list becomes a drawer (the
 "Scrambles" button), and on wide screens it can be collapsed with the same
 button in the top bar.
 
+## Languages
+
+The app is available in English and Czech. It starts in Czech when the
+browser prefers Czech, otherwise in English; the EN / CZ button in the top
+bar switches it, and the choice is remembered. UI strings live in
+`src/i18n/messages.ts` (the Czech dictionary is type-checked against the
+English one, so a missing translation fails the build); cheatsheet texts sit
+next to their data in `src/lib/algorithms.ts` and `src/lib/notation.ts`.
+
 ## Cheatsheet
 
 The "Cheatsheet" button (or `?`) opens a reference with two tabs:
@@ -59,6 +68,7 @@ The "Cheatsheet" button (or `?`) opens a reference with two tabs:
 - `src/lib/` — pure, unit-tested logic: scramble generation, facelet-level
   cube simulation (net rendering and the cheatsheet), statistics, formatting,
   storage, and the notation / algorithm data.
+- `src/i18n/` — language detection, the language context and UI strings.
 - `src/store/` — single reducer store (React context) persisted to Local
   Storage on every change.
 - `src/hooks/useTimer.ts` — the timer state machine (space bar and pointer).

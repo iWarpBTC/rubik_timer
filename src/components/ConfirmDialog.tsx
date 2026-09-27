@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface ConfirmDialogProps {
   title: string;
@@ -18,6 +19,7 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const { t } = useLanguage();
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -54,7 +56,7 @@ export function ConfirmDialog({
             onClick={onCancel}
             className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-800"
           >
-            Cancel
+            {t.dialog.cancel}
           </button>
           <button
             type="button"

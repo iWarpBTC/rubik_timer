@@ -2,20 +2,22 @@ import { useMemo } from 'react';
 import type { Solve } from '../types';
 import { computeStats } from '../lib/stats';
 import { formatAverage, formatStat } from '../lib/format';
+import { useLanguage } from '../i18n/LanguageContext';
 
 /** `solves` must be in chronological order (oldest first). */
 export function StatsPanel({ solves }: { solves: Solve[] }) {
+  const { t } = useLanguage();
   const stats = useMemo(() => computeStats(solves), [solves]);
 
   const items: Array<[string, string]> = [
-    ['Solves', String(stats.count)],
-    ['Best', formatStat(stats.best)],
-    ['Worst', formatStat(stats.worst)],
-    ['Average', formatStat(stats.mean)],
-    ['Median', formatStat(stats.median)],
-    ['Std Dev', formatStat(stats.stdDev)],
-    ['Ao5', formatAverage(stats.ao5)],
-    ['Ao12', formatAverage(stats.ao12)],
+    [t.stats.solves, String(stats.count)],
+    [t.stats.best, formatStat(stats.best)],
+    [t.stats.worst, formatStat(stats.worst)],
+    [t.stats.average, formatStat(stats.mean)],
+    [t.stats.median, formatStat(stats.median)],
+    [t.stats.stdDev, formatStat(stats.stdDev)],
+    [t.stats.ao5, formatAverage(stats.ao5)],
+    [t.stats.ao12, formatAverage(stats.ao12)],
   ];
 
   return (

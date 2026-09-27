@@ -48,7 +48,17 @@ function arrowPath(from: number, to: number): string {
  * stickers of the top layer. OLL shows only yellow; PLL shows all colors
  * and arrows for where the algorithm moves each piece.
  */
-export function LastLayerDiagram({ alg, kind, className }: { alg: string; kind: 'OLL' | 'PLL'; className?: string }) {
+export function LastLayerDiagram({
+  alg,
+  kind,
+  label,
+  className,
+}: {
+  alg: string;
+  kind: 'OLL' | 'PLL';
+  label: string;
+  className?: string;
+}) {
   const view = useMemo(() => lastLayerCase(alg), [alg]);
   const markerId = `arrow${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const color = (face: Face) => (kind === 'PLL' ? LL_COLORS[face] : face === 'U' ? LL_COLORS.U : OLL_OTHER);
@@ -75,7 +85,7 @@ export function LastLayerDiagram({ alg, kind, className }: { alg: string; kind: 
     ));
 
   return (
-    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className={className} role="img" aria-label="Top layer of the case">
+    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className={className} role="img" aria-label={label}>
       <defs>
         <marker
           id={markerId}
