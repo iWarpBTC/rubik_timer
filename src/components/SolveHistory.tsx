@@ -1,6 +1,7 @@
 import type { Penalty, Solve } from '../types';
 import { useDispatch, useStore } from '../store/StoreContext';
 import { formatDateTime, formatResult } from '../lib/format';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const PENALTY_OPTIONS: Array<{ value: Penalty; label: string }> = [
   { value: 'none', label: 'OK' },
@@ -31,6 +32,7 @@ function PenaltyPicker({ solve }: { solve: Solve }) {
 }
 
 function SolveRow({ solve, index, selected }: { solve: Solve; index: number; selected: boolean }) {
+  const { t } = useLanguage();
   const dispatch = useDispatch();
 
   return (
@@ -56,7 +58,7 @@ function SolveRow({ solve, index, selected }: { solve: Solve; index: number; sel
         <input
           type="text"
           value={solve.notes ?? ''}
-          placeholder="notes"
+          placeholder={t.history.notesPlaceholder}
           onChange={(e) =>
             dispatch({ type: 'UPDATE_SOLVE', id: solve.id, patch: { notes: e.target.value } })
           }
@@ -73,7 +75,7 @@ function SolveRow({ solve, index, selected }: { solve: Solve; index: number; sel
             e.stopPropagation();
             dispatch({ type: 'DELETE_SOLVE', id: solve.id });
           }}
-          aria-label="Delete solve"
+          aria-label={t.history.delete}
           className="rounded px-1.5 py-0.5 text-neutral-500 hover:bg-neutral-800 hover:text-red-400"
         >
           ✕
@@ -85,10 +87,11 @@ function SolveRow({ solve, index, selected }: { solve: Solve; index: number; sel
 
 /** `solves` in chronological order; rendered newest first. */
 export function SolveHistory({ solves }: { solves: Solve[] }) {
+  const { t } = useLanguage();
   const { selectedSolveId } = useStore();
 
   if (solves.length === 0) {
-    return <p className="py-4 text-sm text-neutral-500">No solves yet.</p>;
+    return <p className="py-4 text-sm text-neutral-500">{t.history.empty}</p>;
   }
 
   return (
@@ -97,10 +100,10 @@ export function SolveHistory({ solves }: { solves: Solve[] }) {
         <thead>
           <tr className="text-xs uppercase tracking-wide text-neutral-500">
             <th className="px-2 py-2 font-medium sm:px-3">#</th>
-            <th className="px-2 py-2 font-medium sm:px-3">Time</th>
-            <th className="px-2 py-2 font-medium sm:px-3">Penalty</th>
-            <th className="px-2 py-2 font-medium sm:px-3">Notes</th>
-            <th className="hidden px-2 py-2 font-medium sm:table-cell sm:px-3">Date</th>
+            <th className="px-2 py-2 font-medium sm:px-3">{t.history.time}</th>
+            <th className="px-2 py-2 font-medium sm:px-3">{t.history.penalty}</th>
+            <th className="px-2 py-2 font-medium sm:px-3">{t.history.notes}</th>
+            <th className="hidden px-2 py-2 font-medium sm:table-cell sm:px-3">{t.history.date}</th>
             <th className="px-2 py-2 sm:px-3" />
           </tr>
         </thead>

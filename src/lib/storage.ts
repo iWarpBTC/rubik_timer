@@ -1,9 +1,11 @@
 import type { AppData, Penalty, Scramble, Solve } from '../types';
+import type { Lang } from '../i18n/lang';
 import { isValidScramble } from './cube';
 
 const STORAGE_KEY = 'rubik-timer:data';
 const ACTIVE_SCRAMBLE_KEY = 'rubik-timer:active-scramble';
 const LIST_OPEN_KEY = 'rubik-timer:list-open';
+const LANG_KEY = 'rubik-timer:lang';
 
 export const EXPORT_FORMAT = 'rubik-timer';
 export const EXPORT_VERSION = 1;
@@ -14,6 +16,16 @@ export interface ExportFile {
   exportedAt: string;
   scrambles: Scramble[];
   solves: Solve[];
+}
+
+export type ImportErrorCode = 'not-json' | 'not-export' | 'version' | 'invalid-data';
+
+/** A rejected import; `code` identifies the reason so the UI can word it. */
+export class ImportError extends Error {
+  constructor(readonly code: ImportErrorCode) {
+    super(code);
+    this.name = 'ImportError';
+  }
 }
 
 const PENALTIES: readonly Penalty[] = ['none', 'plus2', 'dnf'];
@@ -60,7 +72,7 @@ function parseSolve(value: unknown, scrambleIds: ReadonlySet<string>): Solve | n
 
 function parseData(value: unknown): AppData {
   if (!isRecord(value) || !Array.isArray(value.scrambles) || !Array.isArray(value.solves)) {
-    throw new Error('Invalid data: expected "scrambles" and "solves" arrays.');
+    throw new ImportError('invalid-data');
   }
   const scrambles = value.scrambles
     .map(parseScramble)
@@ -106,6 +118,16 @@ export function saveListOpen(open: boolean): void {
   localStorage.setItem(LIST_OPEN_KEY, String(open));
 }
 
+/** The language the user picked, or null if they never switched. */
+export function loadLang(): Lang | null {
+  const value = localStorage.getItem(LANG_KEY);
+  return value === 'en' || value === 'cs' ? value : null;
+}
+
+export function saveLang(lang: Lang): void {
+  localStorage.setItem(LANG_KEY, lang);
+}
+
 export function serializeExport(data: AppData): string {
   const file: ExportFile = {
     format: EXPORT_FORMAT,
@@ -117,19 +139,19 @@ export function serializeExport(data: AppData): string {
   return JSON.stringify(file, null, 2);
 }
 
-/** Parses an exported JSON file. Throws with a readable message when invalid. */
+/** Parses an exported JSON file. Throws an `ImportError` when invalid. */
 export function parseImport(json: string): AppData {
   let value: unknown;
   try {
     value = JSON.parse(json);
   } catch {
-    throw new Error('Not a valid JSON file.');
+    throw new ImportError('not-json');
   }
   if (!isRecord(value) || value.format !== EXPORT_FORMAT) {
-    throw new Error('Not a rubik-timer export file.');
+    throw new ImportError('not-export');
   }
   if (value.version !== EXPORT_VERSION) {
-    throw new Error(`Unsupported export version: ${String(value.version)}.`);
+    throw new ImportError('version');
   }
   return parseData(value);
 }

@@ -7,25 +7,27 @@
  * adjustment of the top layer (AUF) needed to finish solved.
  */
 
+import { same, type Localized } from '../i18n/lang';
+
 export type AlgorithmGroupId = 'oll-edges' | 'oll-corners' | 'pll-corners' | 'pll-edges' | 'pll-both';
 
 export interface AlgorithmGroup {
   id: AlgorithmGroupId;
   set: 'OLL' | 'PLL';
-  title: string;
-  note: string;
+  title: Localized;
+  note: Localized;
 }
 
 export interface Algorithm {
   id: string;
   group: AlgorithmGroupId;
   /** Standard name, e.g. "Aa-perm". */
-  name: string;
+  name: Localized;
   /** Shorthand used in speedcubing, e.g. "Aa" or "OLL 27". */
   short?: string;
   alg: string;
-  description: string;
-  /** Czech name, for the algorithms this cheatsheet started from. */
+  description: Localized;
+  /** The Czech name the algorithm was first catalogued under; shown in the Czech version. */
   czech?: string;
 }
 
@@ -33,40 +35,49 @@ export const ALGORITHM_GROUPS: readonly AlgorithmGroup[] = [
   {
     id: 'oll-edges',
     set: 'OLL',
-    title: 'OLL · orient edges',
-    note: '2-look OLL, step 1: make a yellow cross on top.',
+    title: { en: 'OLL · orient edges', cs: 'OLL · orientace hran' },
+    note: {
+      en: '2-look OLL, step 1: make a yellow cross on top.',
+      cs: '2-look OLL, krok 1: udělej nahoře žlutý kříž.',
+    },
   },
   {
     id: 'oll-corners',
     set: 'OLL',
-    title: 'OLL · orient corners',
-    note: '2-look OLL, step 2: the cross is done, make the whole top yellow.',
+    title: { en: 'OLL · orient corners', cs: 'OLL · orientace rohů' },
+    note: {
+      en: '2-look OLL, step 2: the cross is done, make the whole top yellow.',
+      cs: '2-look OLL, krok 2: kříž je hotový, dobarvi celý vršek na žluto.',
+    },
   },
   {
     id: 'pll-corners',
     set: 'PLL',
-    title: 'PLL · corners only',
-    note: 'Edges are already solved relative to each other.',
+    title: { en: 'PLL · corners only', cs: 'PLL · jen rohy' },
+    note: {
+      en: 'Edges are already solved relative to each other.',
+      cs: 'Hrany už jsou vůči sobě na správných místech.',
+    },
   },
   {
     id: 'pll-edges',
     set: 'PLL',
-    title: 'PLL · edges only',
-    note: 'Corners are already solved; finish the cube.',
+    title: { en: 'PLL · edges only', cs: 'PLL · jen hrany' },
+    note: { en: 'Corners are already solved; finish the cube.', cs: 'Rohy už jsou hotové; dokonči kostku.' },
   },
   {
     id: 'pll-both',
     set: 'PLL',
-    title: 'PLL · corners and edges',
-    note: 'The rest of full PLL.',
+    title: { en: 'PLL · corners and edges', cs: 'PLL · rohy i hrany' },
+    note: { en: 'The rest of full PLL.', cs: 'Zbytek úplného PLL.' },
   },
 ];
 
 export interface Trigger {
   id: string;
-  name: string;
+  name: Localized;
   alg: string;
-  description: string;
+  description: Localized;
 }
 
 /**
@@ -77,21 +88,30 @@ export interface Trigger {
 export const TRIGGERS: readonly Trigger[] = [
   {
     id: 'sexy',
-    name: 'Sexy move',
+    name: same('Sexy move'),
     alg: "R U R' U'",
-    description: 'The most common trigger; the core of the Line OLL and the start of the T-perm.',
+    description: {
+      en: 'The most common trigger; the core of the Line OLL and the start of the T-perm.',
+      cs: 'Nejčastější trigger; jádro OLL „čára“ a začátek T-perm.',
+    },
   },
   {
     id: 'reverse-sexy',
-    name: 'Reverse sexy move',
+    name: { en: 'Reverse sexy move', cs: 'Obrácený sexy move' },
     alg: "U R U' R'",
-    description: 'The sexy move in reverse order; the core of the L-shape OLL.',
+    description: {
+      en: 'The sexy move in reverse order; the core of the L-shape OLL.',
+      cs: 'Sexy move v opačném pořadí; jádro OLL „písmeno L“.',
+    },
   },
   {
     id: 'sledgehammer',
-    name: 'Sledgehammer',
+    name: same('Sledgehammer'),
     alg: "R' F R F'",
-    description: "Common in F2L; the T (Chameleon) OLL ends with it, using a wide r' first.",
+    description: {
+      en: "Common in F2L; the T (Chameleon) OLL ends with it, using a wide r' first.",
+      cs: "Častý v F2L; OLL T (chameleon) jím končí, jen se širokým r' na začátku.",
+    },
   },
 ];
 
@@ -100,145 +120,196 @@ export const ALGORITHMS: readonly Algorithm[] = [
   {
     id: 'oll-line',
     group: 'oll-edges',
-    name: 'Line',
+    name: { en: 'Line', cs: 'Čára' },
     alg: "F R U R' U' F'",
-    description: 'Two opposite edges oriented. Hold the line horizontally.',
+    description: {
+      en: 'Two opposite edges oriented. Hold the line horizontally.',
+      cs: 'Dvě protější hrany orientované. Drž čáru vodorovně.',
+    },
   },
   {
     id: 'oll-l-shape',
     group: 'oll-edges',
-    name: 'L-shape',
+    name: { en: 'L-shape', cs: 'Písmeno L' },
     alg: "F U R U' R' F'",
-    description: 'Two adjacent edges oriented. Hold the L at the back left.',
+    description: {
+      en: 'Two adjacent edges oriented. Hold the L at the back left.',
+      cs: 'Dvě sousední hrany orientované. Drž L vzadu vlevo.',
+    },
   },
   {
     id: 'oll-dot',
     group: 'oll-edges',
-    name: 'Dot',
+    name: { en: 'Dot', cs: 'Tečka' },
     alg: "F R U R' U' F' f R U R' U' f'",
-    description: 'No edges oriented: the line algorithm followed by a wide one.',
+    description: {
+      en: 'No edges oriented: the line algorithm followed by a wide one.',
+      cs: 'Žádná hrana orientovaná: algoritmus pro čáru a po něm jeho široká varianta.',
+    },
   },
 
   // OLL, corners
   {
     id: 'oll-sune',
     group: 'oll-corners',
-    name: 'Sune',
+    name: same('Sune'),
     short: 'OLL 27',
     alg: "R U R' U R U2 R'",
-    description: 'One corner oriented, at front left; yellow on the front-right corner faces you.',
+    description: {
+      en: 'One corner oriented, at front left; yellow on the front-right corner faces you.',
+      cs: 'Jeden roh orientovaný, vpředu vlevo; žlutá na pravém předním rohu míří k tobě.',
+    },
   },
   {
     id: 'oll-antisune',
     group: 'oll-corners',
-    name: 'Antisune',
+    name: same('Antisune'),
     short: 'OLL 26',
     alg: "R' U' R U' R' U2 R",
-    description: 'One corner oriented, at back left; yellow on the front-left corner faces you.',
+    description: {
+      en: 'One corner oriented, at back left; yellow on the front-left corner faces you.',
+      cs: 'Jeden roh orientovaný, vzadu vlevo; žlutá na levém předním rohu míří k tobě.',
+    },
   },
   {
     id: 'oll-h',
     group: 'oll-corners',
-    name: 'H (Double Sune)',
+    name: same('H (Double Sune)'),
     short: 'OLL 21',
     alg: "R U R' U R U' R' U R U2 R'",
-    description: 'No corners oriented, two pairs of headlights. Hold them left and right.',
+    description: {
+      en: 'No corners oriented, two pairs of headlights. Hold them left and right.',
+      cs: 'Žádný roh orientovaný, dva páry „světel“. Drž je vlevo a vpravo.',
+    },
   },
   {
     id: 'oll-pi',
     group: 'oll-corners',
-    name: 'Pi (Bruno)',
+    name: same('Pi (Bruno)'),
     short: 'OLL 22',
     alg: "R U2 R2 U' R2 U' R2 U2 R",
-    description: 'No corners oriented, one pair of headlights. Hold it on the left.',
+    description: {
+      en: 'No corners oriented, one pair of headlights. Hold it on the left.',
+      cs: 'Žádný roh orientovaný, jeden pár „světel“. Drž ho vlevo.',
+    },
   },
   {
     id: 'oll-u',
     group: 'oll-corners',
-    name: 'U (Headlights)',
+    name: { en: 'U (Headlights)', cs: 'U (světla)' },
     short: 'OLL 23',
     alg: "R2 D R' U2 R D' R' U2 R'",
-    description: 'Two back corners oriented, headlights facing you.',
+    description: {
+      en: 'Two back corners oriented, headlights facing you.',
+      cs: 'Oba zadní rohy orientované, „světla“ míří k tobě.',
+    },
   },
   {
     id: 'oll-t',
     group: 'oll-corners',
-    name: 'T (Chameleon)',
+    name: { en: 'T (Chameleon)', cs: 'T (chameleon)' },
     short: 'OLL 24',
     alg: "r U R' U' r' F R F'",
-    description: 'Two right corners oriented; the left ones face front and back.',
+    description: {
+      en: 'Two right corners oriented; the left ones face front and back.',
+      cs: 'Oba pravé rohy orientované; levé míří dopředu a dozadu.',
+    },
   },
   {
     id: 'oll-l',
     group: 'oll-corners',
-    name: 'L (Bowtie)',
+    name: { en: 'L (Bowtie)', cs: 'L (motýlek)' },
     short: 'OLL 25',
     alg: "F' r U R' U' r' F R",
-    description: 'Two diagonal corners oriented; yellow on the front-right corner faces you.',
+    description: {
+      en: 'Two diagonal corners oriented; yellow on the front-right corner faces you.',
+      cs: 'Dva úhlopříčné rohy orientované; žlutá na pravém předním rohu míří k tobě.',
+    },
   },
 
   // PLL, corners only
   {
     id: 'pll-aa',
     group: 'pll-corners',
-    name: 'Aa-perm',
+    name: same('Aa-perm'),
     short: 'Aa',
     alg: "x R' U R' D2 R U' R' D2 R2 x'",
-    description: 'Cycles three corners clockwise; the front-left corner stays.',
+    description: {
+      en: 'Cycles three corners clockwise; the front-left corner stays.',
+      cs: 'Cyklí tři rohy po směru hodinových ručiček; levý přední roh zůstává.',
+    },
     czech: 'Permutace rohů',
   },
   {
     id: 'pll-ab',
     group: 'pll-corners',
-    name: 'Ab-perm',
+    name: same('Ab-perm'),
     short: 'Ab',
     alg: "x R2 D2 R U R' D2 R U' R x'",
-    description: 'Cycles three corners counterclockwise; the front-left corner stays.',
+    description: {
+      en: 'Cycles three corners counterclockwise; the front-left corner stays.',
+      cs: 'Cyklí tři rohy proti směru hodinových ručiček; levý přední roh zůstává.',
+    },
   },
   {
     id: 'pll-e',
     group: 'pll-corners',
-    name: 'E-perm',
+    name: same('E-perm'),
     short: 'E',
     alg: "x' R U' R' D R U R' D' R U R' D R U' R' D' x",
-    description: 'Swaps the corners in two pairs, front with back on each side.',
+    description: {
+      en: 'Swaps the corners in two pairs, front with back on each side.',
+      cs: 'Prohodí rohy ve dvou párech, na každé straně přední se zadním.',
+    },
   },
 
   // PLL, edges only
   {
     id: 'pll-ua',
     group: 'pll-edges',
-    name: 'Ua-perm',
+    name: same('Ua-perm'),
     short: 'Ua',
     alg: "R U' R U R U R U' R' U' R2",
-    description: 'Cycles three edges counterclockwise; the back edge stays.',
+    description: {
+      en: 'Cycles three edges counterclockwise; the back edge stays.',
+      cs: 'Cyklí tři hrany proti směru hodinových ručiček; zadní hrana zůstává.',
+    },
     czech: 'Permutace hran proti směru',
   },
   {
     id: 'pll-ub',
     group: 'pll-edges',
-    name: 'Ub-perm',
+    name: same('Ub-perm'),
     short: 'Ub',
     alg: "L' U L' U' L' U' L' U L U L2",
-    description: 'Cycles three edges clockwise; the back edge stays.',
+    description: {
+      en: 'Cycles three edges clockwise; the back edge stays.',
+      cs: 'Cyklí tři hrany po směru hodinových ručiček; zadní hrana zůstává.',
+    },
     czech: 'Permutace hran po směru',
   },
   {
     id: 'pll-h',
     group: 'pll-edges',
-    name: 'H-perm',
+    name: same('H-perm'),
     short: 'H',
     alg: "M2 U' M2 U2 M2 U' M2",
-    description: 'Swaps opposite edges: front with back, left with right.',
+    description: {
+      en: 'Swaps opposite edges: front with back, left with right.',
+      cs: 'Prohodí protější hrany: přední se zadní, levou s pravou.',
+    },
     czech: 'Permutace hran – protější prohozené',
   },
   {
     id: 'pll-z',
     group: 'pll-edges',
-    name: 'Z-perm',
+    name: same('Z-perm'),
     short: 'Z',
     alg: "U M' U' M2 U' M2 U' M' U2 M2",
-    description: 'Swaps adjacent edges in two pairs: back with right, left with front.',
+    description: {
+      en: 'Swaps adjacent edges in two pairs: back with right, left with front.',
+      cs: 'Prohodí sousední hrany ve dvou párech: zadní s pravou, levou s přední.',
+    },
     czech: 'Permutace hran – sousední prohozené',
   },
 
@@ -246,113 +317,155 @@ export const ALGORITHMS: readonly Algorithm[] = [
   {
     id: 'pll-t',
     group: 'pll-both',
-    name: 'T-perm',
+    name: same('T-perm'),
     short: 'T',
     alg: "R U R' U' R' F R2 U' R' U' R U R' F'",
-    description: 'Swaps the two right corners, and the left and right edges.',
+    description: {
+      en: 'Swaps the two right corners, and the left and right edges.',
+      cs: 'Prohodí oba pravé rohy a levou hranu s pravou.',
+    },
   },
   {
     id: 'pll-f',
     group: 'pll-both',
-    name: 'F-perm',
+    name: same('F-perm'),
     short: 'F',
     alg: "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R",
-    description: 'Swaps the two right corners, and the front and back edges.',
+    description: {
+      en: 'Swaps the two right corners, and the front and back edges.',
+      cs: 'Prohodí oba pravé rohy a přední hranu se zadní.',
+    },
   },
   {
     id: 'pll-ja',
     group: 'pll-both',
-    name: 'Ja-perm',
+    name: same('Ja-perm'),
     short: 'Ja',
     alg: "x R2 F R F' R U2 r' U r U2 x'",
-    description: 'Swaps the two right corners, and the back and right edges.',
+    description: {
+      en: 'Swaps the two right corners, and the back and right edges.',
+      cs: 'Prohodí oba pravé rohy a zadní hranu s pravou.',
+    },
   },
   {
     id: 'pll-jb',
     group: 'pll-both',
-    name: 'Jb-perm',
+    name: same('Jb-perm'),
     short: 'Jb',
     alg: "R U R' F' R U R' U' R' F R2 U' R' (U')",
-    description: 'Swaps the two right corners, and the right and front edges.',
+    description: {
+      en: 'Swaps the two right corners, and the right and front edges.',
+      cs: 'Prohodí oba pravé rohy a pravou hranu s přední.',
+    },
   },
   {
     id: 'pll-ra',
     group: 'pll-both',
-    name: 'Ra-perm',
+    name: same('Ra-perm'),
     short: 'Ra',
     alg: "R U' R' U' R U R D R' U' R D' R' U2 R' (U')",
-    description: 'Swaps the two right corners, and the back and left edges.',
+    description: {
+      en: 'Swaps the two right corners, and the back and left edges.',
+      cs: 'Prohodí oba pravé rohy a zadní hranu s levou.',
+    },
   },
   {
     id: 'pll-rb',
     group: 'pll-both',
-    name: 'Rb-perm',
+    name: same('Rb-perm'),
     short: 'Rb',
     alg: "R2 F R U R U' R' F' R U2 R' U2 R (U)",
-    description: 'Swaps the two right corners, and the left and front edges.',
+    description: {
+      en: 'Swaps the two right corners, and the left and front edges.',
+      cs: 'Prohodí oba pravé rohy a levou hranu s přední.',
+    },
   },
   {
     id: 'pll-v',
     group: 'pll-both',
-    name: 'V-perm',
+    name: same('V-perm'),
     short: 'V',
     alg: "R' U R' U' R D' R' D R' U D' R2 U' R2 D R2",
-    description: 'Swaps diagonal corners (back left, front right), and the back and right edges.',
+    description: {
+      en: 'Swaps diagonal corners (back left, front right), and the back and right edges.',
+      cs: 'Prohodí úhlopříčné rohy (vzadu vlevo, vpředu vpravo) a zadní hranu s pravou.',
+    },
   },
   {
     id: 'pll-y',
     group: 'pll-both',
-    name: 'Y-perm',
+    name: same('Y-perm'),
     short: 'Y',
     alg: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
-    description: 'Swaps diagonal corners (back left, front right), and the back and left edges.',
+    description: {
+      en: 'Swaps diagonal corners (back left, front right), and the back and left edges.',
+      cs: 'Prohodí úhlopříčné rohy (vzadu vlevo, vpředu vpravo) a zadní hranu s levou.',
+    },
   },
   {
     id: 'pll-na',
     group: 'pll-both',
-    name: 'Na-perm',
+    name: same('Na-perm'),
     short: 'Na',
     alg: "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'",
-    description: 'Swaps diagonal corners (back right, front left), and the left and right edges.',
+    description: {
+      en: 'Swaps diagonal corners (back right, front left), and the left and right edges.',
+      cs: 'Prohodí úhlopříčné rohy (vzadu vpravo, vpředu vlevo) a levou hranu s pravou.',
+    },
   },
   {
     id: 'pll-nb',
     group: 'pll-both',
-    name: 'Nb-perm',
+    name: same('Nb-perm'),
     short: 'Nb',
     alg: "R' U R U' R' F' U' F R U R' F R' F' R U' R",
-    description: 'Swaps diagonal corners (back left, front right), and the left and right edges.',
+    description: {
+      en: 'Swaps diagonal corners (back left, front right), and the left and right edges.',
+      cs: 'Prohodí úhlopříčné rohy (vzadu vlevo, vpředu vpravo) a levou hranu s pravou.',
+    },
   },
   {
     id: 'pll-ga',
     group: 'pll-both',
-    name: 'Ga-perm',
+    name: same('Ga-perm'),
     short: 'Ga',
     alg: "R2 U R' U R' U' R U' R2 U' D R' U R D' (U)",
-    description: 'Corners cycle clockwise, edges counterclockwise; the front-right corner and front edge stay.',
+    description: {
+      en: 'Corners cycle clockwise, edges counterclockwise; the front-right corner and front edge stay.',
+      cs: 'Rohy cyklí po směru, hrany proti směru hodinových ručiček; pravý přední roh a přední hrana zůstávají.',
+    },
   },
   {
     id: 'pll-gb',
     group: 'pll-both',
-    name: 'Gb-perm',
+    name: same('Gb-perm'),
     short: 'Gb',
     alg: "R' U' R U D' R2 U R' U R U' R U' R2 D (U')",
-    description: 'Corners cycle counterclockwise, edges clockwise; the back-right corner and right edge stay.',
+    description: {
+      en: 'Corners cycle counterclockwise, edges clockwise; the back-right corner and right edge stay.',
+      cs: 'Rohy cyklí proti směru, hrany po směru hodinových ručiček; pravý zadní roh a pravá hrana zůstávají.',
+    },
   },
   {
     id: 'pll-gc',
     group: 'pll-both',
-    name: 'Gc-perm',
+    name: same('Gc-perm'),
     short: 'Gc',
     alg: "R2 U' R U' R U R' U R2 U D' R U' R' D (U')",
-    description: 'Corners cycle counterclockwise, edges clockwise; the back-right corner and back edge stay.',
+    description: {
+      en: 'Corners cycle counterclockwise, edges clockwise; the back-right corner and back edge stay.',
+      cs: 'Rohy cyklí proti směru, hrany po směru hodinových ručiček; pravý zadní roh a zadní hrana zůstávají.',
+    },
   },
   {
     id: 'pll-gd',
     group: 'pll-both',
-    name: 'Gd-perm',
+    name: same('Gd-perm'),
     short: 'Gd',
     alg: "R U R' U' D R2 U' R U' R' U R' U R2 D' (U)",
-    description: 'Corners cycle clockwise, edges counterclockwise; the front-right corner and right edge stay.',
+    description: {
+      en: 'Corners cycle clockwise, edges counterclockwise; the front-right corner and right edge stay.',
+      cs: 'Rohy cyklí po směru, hrany proti směru hodinových ručiček; pravý přední roh a pravá hrana zůstávají.',
+    },
   },
 ];

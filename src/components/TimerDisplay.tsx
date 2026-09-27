@@ -1,5 +1,6 @@
 import { formatMs } from '../lib/format';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { useLanguage } from '../i18n/LanguageContext';
 import type { TimerPadHandlers, TimerPhase } from '../hooks/useTimer';
 
 const PHASE_COLOR: Record<TimerPhase, string> = {
@@ -8,19 +9,6 @@ const PHASE_COLOR: Record<TimerPhase, string> = {
   ready: 'text-green-500',
   running: 'text-neutral-100',
 };
-
-function hint(phase: TimerPhase, touch: boolean): string {
-  switch (phase) {
-    case 'running':
-      return touch ? 'Tap anywhere to stop' : 'Press Space or click anywhere to stop';
-    case 'ready':
-      return 'Release to start';
-    case 'holding':
-      return 'Keep holding…';
-    case 'idle':
-      return touch ? 'Touch and hold the timer, release to start' : 'Hold Space or click and hold the timer to start';
-  }
-}
 
 export function TimerDisplay({
   phase,
@@ -31,6 +19,7 @@ export function TimerDisplay({
   displayMs: number;
   padHandlers: TimerPadHandlers;
 }) {
+  const { t } = useLanguage();
   const touch = useMediaQuery('(pointer: coarse)');
 
   return (
@@ -43,7 +32,7 @@ export function TimerDisplay({
       <div className={`font-mono text-6xl font-bold tabular-nums sm:text-7xl ${PHASE_COLOR[phase]}`}>
         {formatMs(displayMs)}
       </div>
-      <p className="mt-2 text-center text-xs text-neutral-500">{hint(phase, touch)}</p>
+      <p className="mt-2 text-center text-xs text-neutral-500">{t.timerHint(phase, touch)}</p>
     </div>
   );
 }

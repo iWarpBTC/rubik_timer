@@ -4,18 +4,14 @@ import { useDispatch, useScrambleNumbers, useStore } from '../store/StoreContext
 import { computeStats } from '../lib/stats';
 import { formatStat } from '../lib/format';
 import { createScramble } from '../lib/scramble';
+import { useLanguage } from '../i18n/LanguageContext';
+import type { Messages } from '../i18n/messages';
 import { ConfirmDialog } from './ConfirmDialog';
 import { ImportExport } from './ImportExport';
 
 export type SortOrder = 'newest' | 'oldest' | 'best-average' | 'most-solves' | 'favorites-first';
 
-const SORT_LABELS: Record<SortOrder, string> = {
-  newest: 'Newest',
-  oldest: 'Oldest',
-  'best-average': 'Best average',
-  'most-solves': 'Most solves',
-  'favorites-first': 'Favorites first',
-};
+const SORT_ORDERS: readonly SortOrder[] = ['newest', 'oldest', 'best-average', 'most-solves', 'favorites-first'];
 
 interface ScrambleSummary {
   scramble: Scramble;
@@ -74,8 +70,8 @@ function sortSummaries(summaries: ScrambleSummary[], order: SortOrder): Scramble
   return sorted;
 }
 
-function displayName(summary: ScrambleSummary): string {
-  return summary.scramble.title ?? `Scramble #${summary.number}`;
+function displayName(summary: ScrambleSummary, t: Messages): string {
+  return summary.scramble.title ?? t.scrambleName(summary.number);
 }
 
 function ScrambleListItem({
@@ -89,6 +85,7 @@ function ScrambleListItem({
   onDeleteRequest: (scramble: Scramble) => void;
   onChosen: () => void;
 }) {
+  const { t } = useLanguage();
   const dispatch = useDispatch();
   const [editing, setEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState('');
@@ -128,7 +125,7 @@ function ScrambleListItem({
                 patch: { favorite: !scramble.favorite },
               });
             }}
-            aria-label={scramble.favorite ? 'Remove favorite' : 'Mark favorite'}
+            aria-label={scramble.favorite ? t.list.removeFavorite : t.list.markFavorite}
             className={scramble.favorite ? 'text-yellow-400' : 'text-neutral-600 hover:text-neutral-400'}
           >
             {scramble.favorite ? '★' : '☆'}
@@ -146,11 +143,11 @@ function ScrambleListItem({
                 if (e.key === 'Escape') setEditing(false);
               }}
               onClick={(e) => e.stopPropagation()}
-              placeholder={`Scramble #${summary.number}`}
+              placeholder={t.scrambleName(summary.number)}
               className="min-w-0 flex-1 rounded border border-neutral-600 bg-neutral-950 px-1 py-0.5 text-base text-neutral-100 focus:outline-none sm:text-sm"
             />
           ) : (
-            <span className="min-w-0 flex-1 truncate text-sm text-neutral-200">{displayName(summary)}</span>
+            <span className="min-w-0 flex-1 truncate text-sm text-neutral-200">{displayName(summary, t)}</span>
           )}
 
           <button
@@ -160,7 +157,7 @@ function ScrambleListItem({
               setDraftTitle(scramble.title ?? '');
               setEditing(true);
             }}
-            aria-label="Rename scramble"
+            aria-label={t.list.rename}
             className="invisible rounded px-1 text-xs text-neutral-500 group-focus-within:visible group-hover:visible hover:text-neutral-200 pointer-coarse:visible pointer-coarse:px-2 pointer-coarse:py-1"
           >
             ✎
@@ -171,16 +168,20 @@ function ScrambleListItem({
               e.stopPropagation();
               onDeleteRequest(scramble);
             }}
-            aria-label="Delete scramble"
+            aria-label={t.list.delete}
             className="invisible rounded px-1 text-xs text-neutral-500 group-focus-within:visible group-hover:visible hover:text-red-400 pointer-coarse:visible pointer-coarse:px-2 pointer-coarse:py-1"
           >
             ✕
           </button>
         </div>
         <div className="mt-1 flex gap-3 pl-6 font-mono text-xs text-neutral-500">
-          <span>{summary.count} solves</span>
-          <span>best {formatStat(summary.best)}</span>
-          <span>avg {formatStat(summary.mean)}</span>
+          <span>{t.solveCount(summary.count)}</span>
+          <span>
+            {t.list.best} {formatStat(summary.best)}
+          </span>
+          <span>
+            {t.list.avg} {formatStat(summary.mean)}
+          </span>
         </div>
       </div>
     </li>
@@ -197,6 +198,7 @@ export function ScrambleList({
   /** Called after the user picks or creates a scramble (closes the list on phones). */
   onScrambleChosen: () => void;
 }) {
+  const { t } = useLanguage();
   const { scrambles, solves, activeScrambleId } = useStore();
   const dispatch = useDispatch();
   const numbers = useScrambleNumbers();
@@ -218,10 +220,10 @@ export function ScrambleList({
         : summaries.filter(
             (s) =>
               s.scramble.scramble.toLowerCase().includes(query) ||
-              (s.scramble.title ?? `scramble #${s.number}`).toLowerCase().includes(query),
+              displayName(s, t).toLowerCase().includes(query),
           );
     return sortSummaries(filtered, sortOrder);
-  }, [scrambles, solves, numbers, search, sortOrder]);
+  }, [scrambles, solves, numbers, search, sortOrder, t]);
 
   const handleNewScramble = () => {
     dispatch({ type: 'ADD_SCRAMBLE', scramble: createScramble() });
@@ -236,7 +238,7 @@ export function ScrambleList({
           onClick={handleNewScramble}
           className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500"
         >
-          New Scramble
+          {t.list.newScramble}
         </button>
         <input
           ref={searchRef}
@@ -246,18 +248,18 @@ export function ScrambleList({
           onKeyDown={(e) => {
             if (e.key === 'Escape') (e.target as HTMLInputElement).blur();
           }}
-          placeholder="Search title or moves…"
+          placeholder={t.list.search}
           className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1.5 text-base text-neutral-200 placeholder:text-neutral-600 focus:border-neutral-500 focus:outline-none sm:text-sm"
         />
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-          aria-label="Sort scrambles"
+          aria-label={t.list.sortLabel}
           className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1.5 text-base text-neutral-300 focus:border-neutral-500 focus:outline-none sm:text-sm"
         >
-          {(Object.keys(SORT_LABELS) as SortOrder[]).map((key) => (
+          {SORT_ORDERS.map((key) => (
             <option key={key} value={key}>
-              {SORT_LABELS[key]}
+              {t.list.sort[key]}
             </option>
           ))}
         </select>
@@ -266,7 +268,7 @@ export function ScrambleList({
       <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {visible.length === 0 ? (
           <li className="px-3 py-4 text-sm text-neutral-500">
-            {scrambles.length === 0 ? 'No scrambles yet.' : 'No scrambles match the search.'}
+            {scrambles.length === 0 ? t.list.empty : t.list.noMatch}
           </li>
         ) : (
           visible.map((summary) => (
@@ -285,11 +287,12 @@ export function ScrambleList({
 
       {deleteTarget !== null && (
         <ConfirmDialog
-          title="Delete scramble?"
-          message={`This deletes "${
-            deleteTarget.title ?? `Scramble #${numbers.get(deleteTarget.id) ?? '?'}`
-          }" and all ${solves.filter((s) => s.scrambleId === deleteTarget.id).length} of its solves. This cannot be undone.`}
-          confirmLabel="Delete"
+          title={t.list.deleteTitle}
+          message={t.list.deleteMessage(
+            deleteTarget.title ?? t.scrambleName(numbers.get(deleteTarget.id) ?? '?'),
+            solves.filter((s) => s.scrambleId === deleteTarget.id).length,
+          )}
+          confirmLabel={t.list.deleteConfirm}
           destructive
           onConfirm={() => {
             dispatch({ type: 'DELETE_SCRAMBLE', id: deleteTarget.id });

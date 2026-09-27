@@ -4,6 +4,7 @@ import { ScrambleList } from './components/ScrambleList';
 import { ScramblePanel } from './components/ScramblePanel';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { useTimer } from './hooks/useTimer';
+import { useLanguage } from './i18n/LanguageContext';
 import { createScramble } from './lib/scramble';
 import { newId } from './lib/id';
 import { loadListOpen, saveListOpen } from './lib/storage';
@@ -22,6 +23,7 @@ const TOOLBAR_BUTTON =
   'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100';
 
 export function App() {
+  const { t, lang, setLang } = useLanguage();
   const { activeScrambleId, selectedSolveId } = useStore();
   const dispatch = useDispatch();
   const searchRef = useRef<HTMLInputElement>(null);
@@ -109,7 +111,7 @@ export function App() {
         <div className="fixed inset-0 z-30 bg-black/60" onClick={closeDrawer} aria-hidden="true" />
       )}
       <aside
-        aria-label="Scrambles"
+        aria-label={t.toolbar.scrambles}
         inert={!listOpen}
         className={`fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] border-r border-neutral-800 bg-neutral-950 transition-transform duration-200 md:static md:z-auto md:max-w-none md:shrink-0 md:translate-none md:transition-none ${
           drawerOpen ? 'translate-x-0' : '-translate-x-full'
@@ -124,15 +126,15 @@ export function App() {
             type="button"
             onClick={() => setListOpen(!listOpen)}
             aria-expanded={listOpen}
-            aria-label={listOpen ? 'Hide scramble list' : 'Show scramble list'}
-            title={listOpen ? 'Hide scramble list' : 'Show scramble list'}
+            aria-label={listOpen ? t.toolbar.hideList : t.toolbar.showList}
+            title={listOpen ? t.toolbar.hideList : t.toolbar.showList}
             className={TOOLBAR_BUTTON}
           >
             <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <rect x="2.75" y="3.75" width="14.5" height="12.5" rx="2" />
               <path d="M7.75 3.75v12.5" />
             </svg>
-            <span className="md:hidden">Scrambles</span>
+            <span className="md:hidden">{t.toolbar.scrambles}</span>
           </button>
           {!listOpen && (
             <button
@@ -140,19 +142,28 @@ export function App() {
               onClick={() => dispatch({ type: 'ADD_SCRAMBLE', scramble: createScramble() })}
               className={TOOLBAR_BUTTON}
             >
-              <span aria-hidden="true" className="text-base leading-none">+</span> New
+              <span aria-hidden="true" className="text-base leading-none">+</span> {t.toolbar.new}
             </button>
           )}
           <button
             type="button"
             onClick={() => setCheatsheetOpen(true)}
-            title="Moves and algorithms (?)"
+            title={t.toolbar.cheatsheetTitle}
             className={`${TOOLBAR_BUTTON} ml-auto`}
           >
             <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path d="M3.75 4.5c2.25-.9 4.5-.9 6.25.5v11c-1.75-1.4-4-1.4-6.25-.5zM16.25 4.5c-2.25-.9-4.5-.9-6.25.5v11c1.75-1.4 4-1.4 6.25-.5z" strokeLinejoin="round" />
             </svg>
-            Cheatsheet
+            {t.toolbar.cheatsheet}
+          </button>
+          <button
+            type="button"
+            onClick={() => setLang(lang === 'cs' ? 'en' : 'cs')}
+            aria-label={t.switchLanguage}
+            title={t.switchLanguage}
+            className={`${TOOLBAR_BUTTON} font-mono text-xs uppercase`}
+          >
+            {lang === 'cs' ? 'EN' : 'CZ'}
           </button>
         </header>
         <main className="min-h-0 flex-1 overflow-y-auto">

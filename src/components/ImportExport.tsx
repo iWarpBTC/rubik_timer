@@ -1,15 +1,17 @@
 import { useRef, useState } from 'react';
 import type { AppData } from '../types';
 import { useDispatch, useStore } from '../store/StoreContext';
-import { parseImport, serializeExport } from '../lib/storage';
+import { ImportError, parseImport, serializeExport } from '../lib/storage';
+import { useLanguage } from '../i18n/LanguageContext';
 import { ConfirmDialog } from './ConfirmDialog';
 
 export function ImportExport({ onDialogOpenChange }: { onDialogOpenChange: (open: boolean) => void }) {
+  const { t } = useLanguage();
   const { scrambles, solves } = useStore();
   const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingImport, setPendingImport] = useState<AppData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ImportError | 'failed' | null>(null);
 
   const setPending = (data: AppData | null) => {
     setPendingImport(data);
@@ -32,7 +34,7 @@ export function ImportExport({ onDialogOpenChange }: { onDialogOpenChange: (open
     try {
       setPending(parseImport(await file.text()));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Import failed.');
+      setError(e instanceof ImportError ? e : 'failed');
     }
   };
 
@@ -44,17 +46,21 @@ export function ImportExport({ onDialogOpenChange }: { onDialogOpenChange: (open
           onClick={handleExport}
           className="flex-1 rounded-md border border-neutral-700 px-2 py-1.5 text-xs text-neutral-300 hover:bg-neutral-800"
         >
-          Export JSON
+          {t.importExport.export}
         </button>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           className="flex-1 rounded-md border border-neutral-700 px-2 py-1.5 text-xs text-neutral-300 hover:bg-neutral-800"
         >
-          Import JSON
+          {t.importExport.import}
         </button>
       </div>
-      {error !== null && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      {error !== null && (
+        <p className="mt-2 text-xs text-red-400">
+          {error === 'failed' ? t.importExport.failed : t.importExport.errors[error.code]}
+        </p>
+      )}
       <input
         ref={fileInputRef}
         type="file"
@@ -69,9 +75,14 @@ export function ImportExport({ onDialogOpenChange }: { onDialogOpenChange: (open
 
       {pendingImport !== null && (
         <ConfirmDialog
-          title="Import data?"
-          message={`This replaces everything currently stored (${scrambles.length} scrambles, ${solves.length} solves) with the imported file (${pendingImport.scrambles.length} scrambles, ${pendingImport.solves.length} solves).`}
-          confirmLabel="Import"
+          title={t.importExport.title}
+          message={t.importExport.message(
+            scrambles.length,
+            solves.length,
+            pendingImport.scrambles.length,
+            pendingImport.solves.length,
+          )}
+          confirmLabel={t.importExport.confirm}
           destructive
           onConfirm={() => {
             dispatch({ type: 'IMPORT_DATA', data: pendingImport });
