@@ -1,4 +1,5 @@
 import type { TimerState } from '../hooks/useTimer';
+import { createScramble } from '../lib/scramble';
 import { useActiveScramble, useDispatch, useScrambleNumbers, useSolvesFor } from '../store/StoreContext';
 import { CubeNet } from './CubeNet';
 import { SolveHistory } from './SolveHistory';
@@ -13,9 +14,17 @@ export function ScramblePanel({ timer }: { timer: TimerState }) {
 
   if (scramble === null) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-sm text-neutral-500">
-          Select a scramble on the left, or press <kbd className="rounded border border-neutral-700 px-1">Ctrl+N</kbd> for a new one.
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
+        <p className="text-sm text-neutral-500">No scramble selected. Pick one from the list, or start a new one.</p>
+        <button
+          type="button"
+          onClick={() => dispatch({ type: 'ADD_SCRAMBLE', scramble: createScramble() })}
+          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500"
+        >
+          New Scramble
+        </button>
+        <p className="hidden text-xs text-neutral-600 md:block">
+          Shortcut: <kbd className="rounded border border-neutral-700 px-1">Ctrl+N</kbd>
         </p>
       </div>
     );
@@ -24,17 +33,17 @@ export function ScramblePanel({ timer }: { timer: TimerState }) {
   const hideDetails = timer.phase === 'running' || timer.phase === 'ready';
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
+    <div className="mx-auto max-w-3xl space-y-4 p-4 sm:space-y-6 sm:p-6">
       <header>
         <div className="text-xs uppercase tracking-wide text-neutral-500">
           {scramble.title ?? `Scramble #${numbers.get(scramble.id) ?? '?'}`}
         </div>
-        <p className="mt-2 font-mono text-2xl leading-relaxed tracking-wide text-neutral-100">
+        <p className="mt-2 font-mono text-lg leading-relaxed tracking-wide text-neutral-100 sm:text-2xl">
           {scramble.scramble}
         </p>
       </header>
 
-      <TimerDisplay phase={timer.phase} displayMs={timer.displayMs} />
+      <TimerDisplay phase={timer.phase} displayMs={timer.displayMs} padHandlers={timer.padHandlers} />
 
       <div className={hideDetails ? 'invisible' : undefined}>
         <div className="flex justify-center">
@@ -56,7 +65,7 @@ export function ScramblePanel({ timer }: { timer: TimerState }) {
               }
               placeholder="Notes about this scramble…"
               rows={2}
-              className="w-full resize-y rounded-md border border-neutral-800 bg-neutral-900 px-2 py-1.5 text-sm text-neutral-300 placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none"
+              className="w-full resize-y rounded-md border border-neutral-800 bg-neutral-900 px-2 py-1.5 text-base text-neutral-300 placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none sm:text-sm"
             />
           </section>
 

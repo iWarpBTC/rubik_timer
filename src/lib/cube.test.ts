@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyScramble, isValidScramble, solvedCube } from './cube';
+import { applyAlgorithm, applyScramble, invertAlgorithm, isValidScramble, solvedCube } from './cube';
 
 describe('cube', () => {
   it('starts solved', () => {
@@ -49,5 +49,48 @@ describe('cube', () => {
     expect(isValidScramble('')).toBe(false);
     expect(isValidScramble('R X')).toBe(false);
     expect(isValidScramble("R2'")).toBe(false);
+  });
+
+  it('keeps scrambles to WCA face turns', () => {
+    expect(isValidScramble("R M' U")).toBe(false);
+    expect(isValidScramble('R x')).toBe(false);
+  });
+});
+
+describe('extended notation', () => {
+  it.each(['M', 'E', 'S', 'r', 'l', 'u', 'd', 'f', 'b', 'x', 'y', 'z'])('%s applied four times is identity', (move) => {
+    expect(applyAlgorithm(`${move} ${move} ${move} ${move}`)).toEqual(solvedCube());
+    expect(applyAlgorithm(`${move} ${move}'`)).toEqual(solvedCube());
+  });
+
+  it('turns slices like their reference faces', () => {
+    // M like L (front goes down), E like D (front goes right), S like F (top goes right).
+    expect(applyAlgorithm('M')[31]).toBe('F');
+    expect(applyAlgorithm('E')[13]).toBe('F');
+    expect(applyAlgorithm('S')[13]).toBe('U');
+  });
+
+  it('builds wide moves and rotations from layers', () => {
+    expect(applyAlgorithm('r')).toEqual(applyAlgorithm("R M'"));
+    expect(applyAlgorithm('Rw')).toEqual(applyAlgorithm('r'));
+    expect(applyAlgorithm("Fw2")).toEqual(applyAlgorithm('f2'));
+    expect(applyAlgorithm('x')).toEqual(applyAlgorithm("R M' L'"));
+  });
+
+  it('rotations change which face a letter turns', () => {
+    expect(applyAlgorithm("y R y'")).toEqual(applyAlgorithm('B'));
+    expect(applyAlgorithm("x U x'")).toEqual(applyAlgorithm('F'));
+    expect(applyAlgorithm("z R z'")).toEqual(applyAlgorithm('U'));
+  });
+
+  it('inverts algorithms', () => {
+    expect(invertAlgorithm("R U2 F' x (M' r2)")).toBe("r2 M x' F U2 R'");
+    const alg = "R U R' U' r' F R F' M2 y";
+    expect(applyAlgorithm(`${alg} ${invertAlgorithm(alg)}`)).toEqual(solvedCube());
+  });
+
+  it('rejects unknown moves', () => {
+    expect(() => applyAlgorithm('R Q')).toThrow('Invalid move: Q');
+    expect(() => applyAlgorithm('Mw')).toThrow();
   });
 });

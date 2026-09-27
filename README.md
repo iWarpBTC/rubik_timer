@@ -14,16 +14,33 @@ npm test         # run unit tests (stats, cube simulation, scramble generator)
 npm run build    # typecheck + production build
 ```
 
-## Keyboard
+## Keyboard, mouse and touch
 
-| Key | Action |
+| Input | Action |
 | --- | --- |
-| Space (hold, then release) | Start timer (turns green when ready) |
-| Space (while running) | Stop timer — the solve is stored automatically |
+| Space, or press and hold the timer (hold, then release) | Start timer (turns green when ready) |
+| Space, or click / tap anywhere (while running) | Stop timer — the solve is stored automatically |
 | Delete | Delete the selected solve |
 | Ctrl+N | New scramble |
 | Ctrl+F | Focus search |
-| Esc | Cancel dialog |
+| ? | Open the cheatsheet |
+| Esc | Cancel dialog / close cheatsheet |
+
+The layout works on phones: the scramble list becomes a drawer (the
+"Scrambles" button), and on wide screens it can be collapsed with the same
+button in the top bar.
+
+## Cheatsheet
+
+The "Cheatsheet" button (or `?`) opens a reference with two tabs:
+
+- **Moves** — face turns, slice moves (M E S), wide moves and cube rotations,
+  each drawn for the plain, prime (') and half (2) turn.
+- **Algorithms** — 2-look OLL and all 21 PLLs, with a picture of the case
+  each one solves. The pictures are computed from the algorithms by the cube
+  simulation, and `src/lib/algorithms.test.ts` checks every algorithm keeps
+  the first two layers intact and solves the case its name and description
+  claim.
 
 ## Notes
 
@@ -40,9 +57,10 @@ npm run build    # typecheck + production build
 ## Architecture
 
 - `src/lib/` — pure, unit-tested logic: scramble generation, facelet-level
-  cube simulation for the net rendering, statistics, formatting, storage.
+  cube simulation (net rendering and the cheatsheet), statistics, formatting,
+  storage, and the notation / algorithm data.
 - `src/store/` — single reducer store (React context) persisted to Local
   Storage on every change.
-- `src/hooks/useTimer.ts` — the space-bar timer state machine.
+- `src/hooks/useTimer.ts` — the timer state machine (space bar and pointer).
 - `src/components/` — presentational components (scramble list, cube net,
-  stats, solve history, dialogs, import/export).
+  stats, solve history, dialogs, import/export, cheatsheet and its diagrams).

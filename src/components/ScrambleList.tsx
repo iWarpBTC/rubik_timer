@@ -3,8 +3,7 @@ import type { Scramble, Solve } from '../types';
 import { useDispatch, useScrambleNumbers, useStore } from '../store/StoreContext';
 import { computeStats } from '../lib/stats';
 import { formatStat } from '../lib/format';
-import { generateScramble } from '../lib/scramble';
-import { newId } from '../lib/id';
+import { createScramble } from '../lib/scramble';
 import { ConfirmDialog } from './ConfirmDialog';
 import { ImportExport } from './ImportExport';
 
@@ -83,10 +82,12 @@ function ScrambleListItem({
   summary,
   active,
   onDeleteRequest,
+  onChosen,
 }: {
   summary: ScrambleSummary;
   active: boolean;
   onDeleteRequest: (scramble: Scramble) => void;
+  onChosen: () => void;
 }) {
   const dispatch = useDispatch();
   const [editing, setEditing] = useState(false);
@@ -106,7 +107,10 @@ function ScrambleListItem({
   return (
     <li>
       <div
-        onClick={() => dispatch({ type: 'SELECT_SCRAMBLE', id: scramble.id })}
+        onClick={() => {
+          dispatch({ type: 'SELECT_SCRAMBLE', id: scramble.id });
+          onChosen();
+        }}
         className={`group cursor-pointer border-l-2 px-3 py-2 ${
           active
             ? 'border-blue-500 bg-neutral-800/70'
@@ -143,7 +147,7 @@ function ScrambleListItem({
               }}
               onClick={(e) => e.stopPropagation()}
               placeholder={`Scramble #${summary.number}`}
-              className="min-w-0 flex-1 rounded border border-neutral-600 bg-neutral-950 px-1 py-0.5 text-sm text-neutral-100 focus:outline-none"
+              className="min-w-0 flex-1 rounded border border-neutral-600 bg-neutral-950 px-1 py-0.5 text-base text-neutral-100 focus:outline-none sm:text-sm"
             />
           ) : (
             <span className="min-w-0 flex-1 truncate text-sm text-neutral-200">{displayName(summary)}</span>
@@ -157,7 +161,7 @@ function ScrambleListItem({
               setEditing(true);
             }}
             aria-label="Rename scramble"
-            className="invisible rounded px-1 text-xs text-neutral-500 hover:text-neutral-200 group-hover:visible"
+            className="invisible rounded px-1 text-xs text-neutral-500 group-focus-within:visible group-hover:visible hover:text-neutral-200 pointer-coarse:visible pointer-coarse:px-2 pointer-coarse:py-1"
           >
             ✎
           </button>
@@ -168,7 +172,7 @@ function ScrambleListItem({
               onDeleteRequest(scramble);
             }}
             aria-label="Delete scramble"
-            className="invisible rounded px-1 text-xs text-neutral-500 hover:text-red-400 group-hover:visible"
+            className="invisible rounded px-1 text-xs text-neutral-500 group-focus-within:visible group-hover:visible hover:text-red-400 pointer-coarse:visible pointer-coarse:px-2 pointer-coarse:py-1"
           >
             ✕
           </button>
@@ -186,9 +190,12 @@ function ScrambleListItem({
 export function ScrambleList({
   searchRef,
   onDialogOpenChange,
+  onScrambleChosen,
 }: {
   searchRef: RefObject<HTMLInputElement | null>;
   onDialogOpenChange: (open: boolean) => void;
+  /** Called after the user picks or creates a scramble (closes the list on phones). */
+  onScrambleChosen: () => void;
 }) {
   const { scrambles, solves, activeScrambleId } = useStore();
   const dispatch = useDispatch();
@@ -217,15 +224,8 @@ export function ScrambleList({
   }, [scrambles, solves, numbers, search, sortOrder]);
 
   const handleNewScramble = () => {
-    dispatch({
-      type: 'ADD_SCRAMBLE',
-      scramble: {
-        id: newId(),
-        scramble: generateScramble(),
-        createdAt: Date.now(),
-        favorite: false,
-      },
-    });
+    dispatch({ type: 'ADD_SCRAMBLE', scramble: createScramble() });
+    onScrambleChosen();
   };
 
   return (
@@ -247,13 +247,13 @@ export function ScrambleList({
             if (e.key === 'Escape') (e.target as HTMLInputElement).blur();
           }}
           placeholder="Search title or moves…"
-          className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1.5 text-sm text-neutral-200 placeholder:text-neutral-600 focus:border-neutral-500 focus:outline-none"
+          className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1.5 text-base text-neutral-200 placeholder:text-neutral-600 focus:border-neutral-500 focus:outline-none sm:text-sm"
         />
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value as SortOrder)}
           aria-label="Sort scrambles"
-          className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1.5 text-sm text-neutral-300 focus:border-neutral-500 focus:outline-none"
+          className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 py-1.5 text-base text-neutral-300 focus:border-neutral-500 focus:outline-none sm:text-sm"
         >
           {(Object.keys(SORT_LABELS) as SortOrder[]).map((key) => (
             <option key={key} value={key}>
@@ -263,7 +263,7 @@ export function ScrambleList({
         </select>
       </div>
 
-      <ul className="min-h-0 flex-1 overflow-y-auto">
+      <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {visible.length === 0 ? (
           <li className="px-3 py-4 text-sm text-neutral-500">
             {scrambles.length === 0 ? 'No scrambles yet.' : 'No scrambles match the search.'}
@@ -275,6 +275,7 @@ export function ScrambleList({
               summary={summary}
               active={summary.scramble.id === activeScrambleId}
               onDeleteRequest={setDeleteTargetBoth}
+              onChosen={onScrambleChosen}
             />
           ))
         )}
