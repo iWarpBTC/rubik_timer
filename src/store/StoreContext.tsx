@@ -7,7 +7,7 @@ import {
   type Dispatch,
   type ReactNode,
 } from 'react';
-import type { AppData, Scramble, Solve } from '../types';
+import type { AppData, NewScramble, Scramble, Solve } from '../types';
 import { loadActiveScrambleId, loadData, saveActiveScrambleId, saveData } from '../lib/storage';
 
 export interface StoreState {
@@ -18,7 +18,7 @@ export interface StoreState {
 }
 
 export type Action =
-  | { type: 'ADD_SCRAMBLE'; scramble: Scramble }
+  | { type: 'ADD_SCRAMBLE'; scramble: NewScramble }
   | { type: 'SELECT_SCRAMBLE'; id: string }
   | { type: 'UPDATE_SCRAMBLE'; id: string; patch: Partial<Pick<Scramble, 'title' | 'favorite' | 'notes'>> }
   | { type: 'DELETE_SCRAMBLE'; id: string }
@@ -28,12 +28,16 @@ export type Action =
   | { type: 'SELECT_SOLVE'; id: string | null }
   | { type: 'IMPORT_DATA'; data: AppData };
 
+function nextScrambleNumber(scrambles: Scramble[]): number {
+  return scrambles.reduce((max, s) => Math.max(max, s.number), 0) + 1;
+}
+
 function reducer(state: StoreState, action: Action): StoreState {
   switch (action.type) {
     case 'ADD_SCRAMBLE':
       return {
         ...state,
-        scrambles: [...state.scrambles, action.scramble],
+        scrambles: [...state.scrambles, { ...action.scramble, number: nextScrambleNumber(state.scrambles) }],
         activeScrambleId: action.scramble.id,
         selectedSolveId: null,
       };
@@ -135,14 +139,4 @@ export function useSolvesFor(scrambleId: string | null): Solve[] {
     () => (scrambleId === null ? [] : solves.filter((s) => s.scrambleId === scrambleId)),
     [solves, scrambleId],
   );
-}
-
-/** Stable display number of a scramble: 1-based position in creation order. */
-export function useScrambleNumbers(): Map<string, number> {
-  const { scrambles } = useStore();
-  return useMemo(() => {
-    const map = new Map<string, number>();
-    scrambles.forEach((s, i) => map.set(s.id, i + 1));
-    return map;
-  }, [scrambles]);
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState, type RefObject } from 'react';
 import type { Scramble, Solve } from '../types';
-import { useDispatch, useScrambleNumbers, useStore } from '../store/StoreContext';
+import { useDispatch, useStore } from '../store/StoreContext';
 import { computeStats } from '../lib/stats';
 import { formatStat } from '../lib/format';
 import { createScramble } from '../lib/scramble';
@@ -15,17 +15,12 @@ const SORT_ORDERS: readonly SortOrder[] = ['newest', 'oldest', 'best-average', '
 
 interface ScrambleSummary {
   scramble: Scramble;
-  number: number;
   count: number;
   best: number | null;
   mean: number | null;
 }
 
-function buildSummaries(
-  scrambles: Scramble[],
-  solves: Solve[],
-  numbers: Map<string, number>,
-): ScrambleSummary[] {
+function buildSummaries(scrambles: Scramble[], solves: Solve[]): ScrambleSummary[] {
   const byScramble = new Map<string, Solve[]>();
   for (const solve of solves) {
     const list = byScramble.get(solve.scrambleId);
@@ -36,7 +31,6 @@ function buildSummaries(
     const stats = computeStats(byScramble.get(scramble.id) ?? []);
     return {
       scramble,
-      number: numbers.get(scramble.id) ?? 0,
       count: stats.count,
       best: stats.best,
       mean: stats.mean,
@@ -71,7 +65,7 @@ function sortSummaries(summaries: ScrambleSummary[], order: SortOrder): Scramble
 }
 
 function displayName(summary: ScrambleSummary, t: Messages): string {
-  return summary.scramble.title ?? t.scrambleName(summary.number);
+  return summary.scramble.title ?? t.scrambleName(summary.scramble.number);
 }
 
 function ScrambleListItem({
@@ -143,7 +137,7 @@ function ScrambleListItem({
                 if (e.key === 'Escape') setEditing(false);
               }}
               onClick={(e) => e.stopPropagation()}
-              placeholder={t.scrambleName(summary.number)}
+              placeholder={t.scrambleName(summary.scramble.number)}
               className="min-w-0 flex-1 rounded border border-neutral-600 bg-neutral-950 px-1 py-0.5 text-base text-neutral-100 focus:outline-none sm:text-sm"
             />
           ) : (
@@ -201,7 +195,6 @@ export function ScrambleList({
   const { t } = useLanguage();
   const { scrambles, solves, activeScrambleId } = useStore();
   const dispatch = useDispatch();
-  const numbers = useScrambleNumbers();
   const [search, setSearch] = useState('');
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [deleteTarget, setDeleteTarget] = useState<Scramble | null>(null);
@@ -212,7 +205,7 @@ export function ScrambleList({
   };
 
   const visible = useMemo(() => {
-    const summaries = buildSummaries(scrambles, solves, numbers);
+    const summaries = buildSummaries(scrambles, solves);
     const query = search.trim().toLowerCase();
     const filtered =
       query.length === 0
@@ -223,7 +216,7 @@ export function ScrambleList({
               displayName(s, t).toLowerCase().includes(query),
           );
     return sortSummaries(filtered, sortOrder);
-  }, [scrambles, solves, numbers, search, sortOrder, t]);
+  }, [scrambles, solves, search, sortOrder, t]);
 
   const handleNewScramble = () => {
     dispatch({ type: 'ADD_SCRAMBLE', scramble: createScramble() });
@@ -289,7 +282,7 @@ export function ScrambleList({
         <ConfirmDialog
           title={t.list.deleteTitle}
           message={t.list.deleteMessage(
-            deleteTarget.title ?? t.scrambleName(numbers.get(deleteTarget.id) ?? '?'),
+            deleteTarget.title ?? t.scrambleName(deleteTarget.number),
             solves.filter((s) => s.scrambleId === deleteTarget.id).length,
           )}
           confirmLabel={t.list.deleteConfirm}
