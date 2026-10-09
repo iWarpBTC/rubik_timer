@@ -1,4 +1,4 @@
-import type { Scramble } from '../types';
+import type { NewScramble } from '../types';
 import type { Face } from './cube';
 import { newId } from './id';
 
@@ -35,6 +35,6 @@ export function generateScramble(): string {
 }
 
 /** A new, not yet practiced scramble entity with a freshly generated sequence. */
-export function createScramble(): Scramble {
+export function createScramble(): NewScramble {
   return { id: newId(), scramble: generateScramble(), createdAt: Date.now(), favorite: false };
 }

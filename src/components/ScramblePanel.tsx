@@ -1,7 +1,7 @@
 import type { TimerState } from '../hooks/useTimer';
 import { useLanguage } from '../i18n/LanguageContext';
 import { createScramble } from '../lib/scramble';
-import { useActiveScramble, useDispatch, useScrambleNumbers, useSolvesFor } from '../store/StoreContext';
+import { useActiveScramble, useDispatch, useSolvesFor } from '../store/StoreContext';
 import { CubeNet } from './CubeNet';
 import { SolveHistory } from './SolveHistory';
 import { StatsPanel } from './StatsPanel';
@@ -11,7 +11,6 @@ export function ScramblePanel({ timer }: { timer: TimerState }) {
   const { t } = useLanguage();
   const scramble = useActiveScramble();
   const solves = useSolvesFor(scramble?.id ?? null);
-  const numbers = useScrambleNumbers();
   const dispatch = useDispatch();
 
   if (scramble === null) {
@@ -38,7 +37,7 @@ export function ScramblePanel({ timer }: { timer: TimerState }) {
     <div className="mx-auto max-w-3xl space-y-4 p-4 sm:space-y-6 sm:p-6">
       <header>
         <div className="text-xs uppercase tracking-wide text-neutral-500">
-          {scramble.title ?? t.scrambleName(numbers.get(scramble.id) ?? '?')}
+          {scramble.title ?? t.scrambleName(scramble.number)}
         </div>
         <p className="mt-2 font-mono text-lg leading-relaxed tracking-wide text-neutral-100 sm:text-2xl">
           {scramble.scramble}

@@ -36,9 +36,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+/** A parsed scramble; `number` is 0 when the data predates stored numbers. */
 function parseScramble(value: unknown): Scramble | null {
   if (!isRecord(value)) return null;
-  const { id, scramble, createdAt, favorite, title, notes } = value;
+  const { id, scramble, createdAt, number, favorite, title, notes } = value;
   if (typeof id !== 'string' || id.length === 0) return null;
   if (typeof scramble !== 'string' || !isValidScramble(scramble)) return null;
   if (typeof createdAt !== 'number') return null;
@@ -46,6 +47,7 @@ function parseScramble(value: unknown): Scramble | null {
     id,
     scramble,
     createdAt,
+    number: Number.isSafeInteger(number) && (number as number) > 0 ? (number as number) : 0,
     favorite: favorite === true,
   };
   if (typeof title === 'string' && title.length > 0) result.title = title;
@@ -72,6 +74,18 @@ function parseSolve(value: unknown, scrambleIds: ReadonlySet<string>): Solve | n
   return result;
 }
 
+/**
+ * Numbers scrambles saved before numbers were stored, continuing after the
+ * highest number in use. For such data this matches the numbers shown before,
+ * which were positions in creation order.
+ */
+function assignMissingNumbers(scrambles: Scramble[]): void {
+  let next = scrambles.reduce((max, s) => Math.max(max, s.number), 0) + 1;
+  for (const s of scrambles) {
+    if (s.number === 0) s.number = next++;
+  }
+}
+
 function parseData(value: unknown): AppData {
   if (!isRecord(value) || !Array.isArray(value.scrambles) || !Array.isArray(value.solves)) {
     throw new ImportError('invalid-data');
@@ -80,6 +94,7 @@ function parseData(value: unknown): AppData {
     .map(parseScramble)
     .filter((s): s is Scramble => s !== null)
     .sort((a, b) => a.createdAt - b.createdAt);
+  assignMissingNumbers(scrambles);
   const ids = new Set(scrambles.map((s) => s.id));
   const solves = value.solves
     .map((s) => parseSolve(s, ids))
