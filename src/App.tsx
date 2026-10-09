@@ -4,6 +4,7 @@ import { ScrambleList } from './components/ScrambleList';
 import { ScramblePanel } from './components/ScramblePanel';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { useTimer } from './hooks/useTimer';
+import { useWakeLock } from './hooks/useWakeLock';
 import { useLanguage } from './i18n/LanguageContext';
 import { createScramble } from './lib/scramble';
 import { newId } from './lib/id';
@@ -64,6 +65,10 @@ export function App() {
       },
     });
   });
+
+  // A running solve turns the timer area green and keeps the screen from sleeping.
+  const running = timer.phase === 'running';
+  useWakeLock(running);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -166,7 +171,9 @@ export function App() {
             {lang === 'cs' ? 'EN' : 'CZ'}
           </button>
         </header>
-        <main className="min-h-0 flex-1 overflow-y-auto">
+        <main
+          className={`min-h-0 flex-1 overflow-y-auto transition-colors duration-150 ${running ? 'bg-green-800' : ''}`}
+        >
           <ScramblePanel timer={timer} />
         </main>
       </div>
